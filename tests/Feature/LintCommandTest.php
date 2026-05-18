@@ -19,6 +19,7 @@ describe('librarian:lint', function (): void {
     beforeEach(function (): void {
         $this->deletePath('docs');
         config()->set('librarian.rules', []);
+        config()->set('librarian.generated_docs.enforce', true);
     });
 
     it('passes for valid docs', function (): void {
@@ -49,6 +50,16 @@ describe('librarian:lint', function (): void {
         artisan('librarian:lint')
             ->expectsOutputToContain('librarian.generated_docs docs/README.md')
             ->assertFailed();
+    });
+
+    it('can skip generated docs freshness checks', function (): void {
+        writeValidDocs($this);
+        $this->writeFile('docs/README.md', '# stale');
+        config()->set('librarian.generated_docs.enforce', false);
+
+        artisan('librarian:lint')
+            ->expectsOutput('Lint passed.')
+            ->assertSuccessful();
     });
 
     it('fails when domain numbering is not contiguous', function (): void {

@@ -25,6 +25,10 @@ final readonly class GeneratedDocsAreCurrentRule implements GroupedRule
 
     public function check(): array
     {
+        if (config('librarian.generated_docs.enforce', true) === false) {
+            return [];
+        }
+
         if ($this->generatedDocs->isCurrent()) {
             return [];
         }
