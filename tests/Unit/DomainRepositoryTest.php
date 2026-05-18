@@ -117,7 +117,10 @@ describe('DomainRepository', function (): void {
         mkdir(docsRoot('domains/2_app'), 0777, true);
 
         DomainRenameHook::$callback = static function (string $from, string $to): bool {
-            if (str_contains($from, '/docs/domains/__tmp__') && str_ends_with($to, '/docs/domains/4_app')) {
+            $normalizedFrom = str_replace('\\', '/', $from);
+            $normalizedTo = str_replace('\\', '/', $to);
+
+            if (str_contains($normalizedFrom, '/docs/domains/__tmp__') && str_ends_with($normalizedTo, '/docs/domains/4_app')) {
                 return false;
             }
 
@@ -170,6 +173,14 @@ describe('DocsFilesystem', function (): void {
         expect($filesystem->docsPath())->toBe(docsRoot())
             ->and($filesystem->docsPath('domains/2_quick-start'))->toBe(docsRoot('domains/2_quick-start'))
             ->and($filesystem->relativePath(docsRoot('domains/2_quick-start/api-reference.md')))
+            ->toBe('domains/2_quick-start/api-reference.md');
+    });
+
+    it('normalizes windows separators when building relative paths', function (): void {
+        $filesystem = new DocsFilesystem(new DocsConfig('C:\\project\\docs'));
+
+        expect($filesystem->docsPath('domains\\2_quick-start'))->toBe('C:/project/docs/domains/2_quick-start')
+            ->and($filesystem->relativePath('C:\\project\\docs\\domains\\2_quick-start\\api-reference.md'))
             ->toBe('domains/2_quick-start/api-reference.md');
     });
 

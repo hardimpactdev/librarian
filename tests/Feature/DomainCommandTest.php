@@ -164,7 +164,10 @@ it('restores markdown even when inverse renumber rollback fails after generated 
     $this->writeFile('docs/architecture.md', '[App](domains/2_app/app.md)');
 
     DomainRenameHook::$callback = static function (string $from, string $to): bool {
-        if (str_contains($from, '/docs/domains/__tmp__') && str_ends_with($to, '/docs/domains/2_app')) {
+        $normalizedFrom = str_replace('\\', '/', $from);
+        $normalizedTo = str_replace('\\', '/', $to);
+
+        if (str_contains($normalizedFrom, '/docs/domains/__tmp__') && str_ends_with($normalizedTo, '/docs/domains/2_app')) {
             return false;
         }
 

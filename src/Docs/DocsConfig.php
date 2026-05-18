@@ -14,7 +14,7 @@ final readonly class DocsConfig
 
     public static function fromConfig(): self
     {
-        $path = rtrim((string) config('librarian.path'), '/');
+        $path = rtrim(str_replace('\\', '/', (string) config('librarian.path')), '/');
 
         if ($path === '') {
             throw new InvalidArgumentException('The librarian.path config value must not be empty.');

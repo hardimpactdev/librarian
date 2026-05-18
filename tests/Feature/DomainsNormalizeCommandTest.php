@@ -154,7 +154,10 @@ describe('librarian:domains:normalize', function (): void {
         );
 
         DomainRenameHook::$callback = static function (string $from, string $to): bool {
-            if (str_contains($from, '/docs/domains/__tmp__') && str_ends_with($to, '/docs/domains/4_app')) {
+            $normalizedFrom = str_replace('\\', '/', $from);
+            $normalizedTo = str_replace('\\', '/', $to);
+
+            if (str_contains($normalizedFrom, '/docs/domains/__tmp__') && str_ends_with($normalizedTo, '/docs/domains/4_app')) {
                 return false;
             }
 

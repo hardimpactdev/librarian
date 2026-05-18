@@ -15,26 +15,34 @@ final readonly class DocsFilesystem
     public function docsPath(string $path = ''): string
     {
         if ($path === '') {
-            return $this->config->path;
+            return $this->root();
         }
 
-        return "{$this->config->path}/".ltrim($path, '/');
+        return $this->root().'/'.ltrim(str_replace('\\', '/', $path), '/');
     }
 
     public function relativePath(string $absolutePath): string
     {
-        if ($absolutePath === $this->config->path) {
+        $root = $this->root();
+        $absolutePath = rtrim(str_replace('\\', '/', $absolutePath), '/');
+
+        if ($absolutePath === $root) {
             return '';
         }
 
-        $docsPrefix = "{$this->config->path}/";
+        $docsPrefix = "{$root}/";
 
         if (! str_starts_with($absolutePath, $docsPrefix)) {
             throw new InvalidArgumentException(
-                "Path [{$absolutePath}] is not inside the docs root [{$this->config->path}].",
+                "Path [{$absolutePath}] is not inside the docs root [{$root}].",
             );
         }
 
         return substr($absolutePath, strlen($docsPrefix));
+    }
+
+    private function root(): string
+    {
+        return rtrim(str_replace('\\', '/', $this->config->path), '/');
     }
 }
