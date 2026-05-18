@@ -147,9 +147,20 @@ final readonly class LocalMarkdownLinksRule implements GroupedRule
             ? $this->filesystem->docsPath(ltrim($target, '/'))
             : dirname($currentFile).'/'.$target;
 
+        $path = str_replace('\\', '/', $path);
+        $prefix = '';
+
+        if (preg_match('/^[A-Za-z]:\//', $path) === 1) {
+            $prefix = substr($path, 0, 3);
+            $path = substr($path, 3);
+        } elseif (str_starts_with($path, '/')) {
+            $prefix = '/';
+            $path = ltrim($path, '/');
+        }
+
         $segments = [];
 
-        foreach (explode('/', str_replace('\\', '/', $path)) as $segment) {
+        foreach (explode('/', $path) as $segment) {
             if ($segment === '' || $segment === '.') {
                 continue;
             }
@@ -163,6 +174,6 @@ final readonly class LocalMarkdownLinksRule implements GroupedRule
             $segments[] = $segment;
         }
 
-        return '/'.implode('/', $segments);
+        return $prefix.implode('/', $segments);
     }
 }

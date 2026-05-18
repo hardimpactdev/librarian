@@ -25,6 +25,6 @@ abstract class TestCase extends Orchestra
 
     protected function docsPath(): string
     {
-        return $this->app->basePath('docs');
+        return str_replace('\\', '/', $this->app->basePath('docs'));
     }
 }

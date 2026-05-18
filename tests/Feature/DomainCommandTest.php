@@ -124,14 +124,20 @@ it('does not leave the new domain directory behind if renumbering fails before s
     mkdir($this->docsPath().'/domains/2_app', 0777, true);
     $this->writeFile('docs/domains/1_node/node.md', "# Node\n");
     $this->writeFile('docs/domains/2_app/app.md', "# App\n");
-    chmod($this->docsPath().'/domains', 0555);
 
-    try {
-        artisan('librarian:domain gateway --after=node')
-            ->assertFailed();
-    } finally {
-        chmod($this->docsPath().'/domains', 0777);
-    }
+    DomainRenameHook::$callback = static function (string $from, string $to): bool {
+        $normalizedFrom = str_replace('\\', '/', $from);
+        $normalizedTo = str_replace('\\', '/', $to);
+
+        if (str_ends_with($normalizedFrom, '/docs/domains/2_app') && str_contains($normalizedTo, '/docs/domains/__tmp__')) {
+            return false;
+        }
+
+        return \rename($from, $to);
+    };
+
+    artisan('librarian:domain gateway --after=node')
+        ->assertFailed();
 
     expect(is_dir($this->docsPath().'/domains/2_gateway'))->toBeFalse()
         ->and(is_dir($this->docsPath().'/domains/1_node'))->toBeTrue()

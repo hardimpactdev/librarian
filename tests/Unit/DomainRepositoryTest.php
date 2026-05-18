@@ -194,7 +194,7 @@ describe('DocsFilesystem', function (): void {
 
 function docsRoot(string $path = ''): string
 {
-    $root = (string) config('librarian.path');
+    $root = str_replace('\\', '/', (string) config('librarian.path'));
 
     if ($path === '') {
         return $root;
