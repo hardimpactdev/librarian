@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SKELETON="$ROOT/vendor/orchestra/testbench-core/laravel"
+
+if [[ ! -d "$SKELETON" ]]; then
+    echo "Testbench skeleton not found at $SKELETON" >&2
+    exit 1
+fi
+
+restore_path() {
+    local name="$1"
+    local target="$SKELETON/$name"
+    local backup="$SKELETON/$name.librarian-boost-backup"
+
+    rm -rf "$target"
+
+    if [[ -e "$backup" || -L "$backup" ]]; then
+        mv "$backup" "$target"
+    fi
+}
+
+bridge_path() {
+    local name="$1"
+    local source="$ROOT/$name"
+    local target="$SKELETON/$name"
+    local backup="$SKELETON/$name.librarian-boost-backup"
+
+    rm -rf "$backup"
+
+    if [[ -e "$target" || -L "$target" ]]; then
+        mv "$target" "$backup"
+    fi
+
+    if [[ "$name" == ".agents" || "$name" == ".claude" ]]; then
+        mkdir -p "$source"
+    fi
+
+    ln -s "$source" "$target"
+}
+
+cleanup() {
+    restore_path ".claude"
+    restore_path ".agents"
+    restore_path ".ai"
+    restore_path "boost.json"
+    restore_path "composer.lock"
+    restore_path "composer.json"
+}
+
+trap cleanup EXIT
+
+bridge_path "composer.json"
+bridge_path "composer.lock"
+bridge_path "boost.json"
+bridge_path ".ai"
+bridge_path ".agents"
+bridge_path ".claude"
+
+"$ROOT/vendor/bin/testbench" boost:install --guidelines --skills --no-interaction --ansi
