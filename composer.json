@@ -32,8 +32,7 @@
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
-        "spatie/guidelines-skills": "dev-main",
-        "spatie/laravel-ray": "^1.35"
+        "spatie/guidelines-skills": "dev-main"
     },
     "autoload": {
         "psr-4": {
