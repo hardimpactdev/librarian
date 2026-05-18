@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Artisan;
 
 it('registers package config and commands', function (): void {
     expect(config('librarian'))->toHaveKeys(['path', 'rules']);
-    expect(config('librarian.path'))->toBe($this->app->basePath('docs'));
+    expect(config('librarian.path'))->toBe(str_replace('\\', '/', $this->app->basePath('docs')));
 
     expect(array_keys(Artisan::all()))->toContain(
         'librarian:build',
